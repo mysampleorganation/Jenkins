@@ -1,0 +1,71 @@
+/*
+parameters {
+  choice choices: ['Dev', 'QA', 'Stage', 'Hotfix'], description: 'defining env', name: 'Environment'
+}
+parameters {
+  choice choices: ['FBAppWS', 'GAOlap', 'GRM', 'GDPR', 'Old_ClpPlatform', 'Enduserportal', 'ClpWeb', 'CRM', 'Loyality', 'New_ClpPlatformConsumer', 'New_ClpPlatformProducer'], description: 'apps', name: 'Application'
+}
+
+*/
+
+
+
+node {
+   println "${params.Environment}"
+   echo "${params.Application}"
+   def script = "/home/fbpoweruser/jenkins/env_app_restart.sh"
+  currentBuild.displayName = "${BUILD_NUMBER}-${params.Environment}_${params.Application}"
+  //currentBuild.description = "Restarted by ${BUILD_USER} "	
+  
+stage('Restarting Application ') {
+      echo  " Restarting in ${params.Environment} environment of  ${params.Application} application" 
+	  
+	  if ("${params.Environment}"== "Dev") {
+			
+			if(("${params.Application}" == "FBAppWS") || ("${params.Application}" =="GAOlap" )|| ("${params.Application}" =="GRM") || ("${params.Application}" == "GDPR") || ("${params.Application}" == "Old_ClpPlatform" ))
+			{
+			            sh "ssh fbpoweruser@10.80.60.150  ${script} ${params.Application} "
+			}
+			else if (("${params.Application}" == "ClpWeb" )|| ("${params.Application}" =="Enduserportal")){
+					
+						 sh "ssh fbpoweruser@10.80.10.102 ${script} ${params.Application}"
+			
+			}
+			else if (("${params.Application}" == "New_ClpPlatformConsumer") || ("${params.Application}" == "New_ClpPlatformProducer")){
+					
+						 sh "ssh fbpoweruser@IP ${script} ${params.Application}"
+			
+			}
+			else if (("${params.Application}" =="CRM" )||("${params.Application}" == "Loyality")){
+					
+						 sh "ssh fbpoweruser@IP ${script} ${params.Application}"
+			
+			}   
+      }
+
+      if ("${params.Environment}"== "QA") {
+			
+			if(("${params.Application}" == "FBAppWS") || ("${params.Application}" =="GAOlap" )|| ("${params.Application}" =="GRM") || ("${params.Application}" == "GDPR") || ("${params.Application}" == "Old_ClpPlatform" ))
+			{
+			            sh "ssh fbpoweruser@10.80.70.150  ${script} ${params.Application} "
+			}
+			else if (("${params.Application}" == "ClpWeb" )|| ("${params.Application}" =="Enduserportal")){
+					
+						 sh "ssh fbpoweruser@10.80.20.10 ${script} ${params.Application}"
+			
+			}
+			else if (("${params.Application}" == "New_ClpPlatformConsumer") || ("${params.Application}" == "New_ClpPlatformProducer")){
+					
+						 sh "ssh fbpoweruser@IP ${script} ${params.Application}"
+			
+			}
+			else if (("${params.Application}" =="CRM" )||("${params.Application}" == "Loyality")){
+					
+						 sh "ssh fbpoweruser@IP ${script} ${params.Application}"
+			
+			}   
+      } 
+   }
+   
+}
+   

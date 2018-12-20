@@ -1,5 +1,28 @@
 import groovy.json.JsonSlurper
 
+println "Hello World of Groovy !"
+/* echo "Printing out the JSON payload from groovy script in github: $params.payload" */
+
+echo "Test push 1"
+echo "Test push 2"
+
+
+def jsonSlurper = new JsonSlurper()
+def inputText = params.payload
+
+def jsonObject = jsonSlurper.parseText(inputText)
+/* println "JSONObject generated out of JsonSlurper : " + jsonObject */
+
+println "Event that triggred this webhook: " + jsonObject.action
+println "Repository Name: " + jsonObject.repository.name
+println "Repository https clone url: " + jsonObject.repository.clone_url
+println "Person's name that generated this event: " + jsonObject.sender.login
+println "Person's LDAP-ID that generated this event: " + jsonObject.sender.ldap_dn
+
+
+----------------------
+import groovy.json.JsonSlurper
+
 
 pipeline {
 
@@ -60,7 +83,7 @@ def repo_creator=jsonRepoObject.sender.login
 def repo_creator_email= "${repo_creator}".replace('-','.')
 skipRemainingStages = false
 def criteriamet = false
-def lob_list=["consumer","edo","payments","commercial","infrastructure","info","strategy","security","architecture","CCAS","iris","hi","devops", "Finance","capital","markets"]
+def lob_list=["consumer","edo","payments","commercial","infrastructure","info","strategy","security","architecture","CCAS","iris","hi","devops","capital","markets"]
 
 
 if (jsonRepoObject.action == "created") {
@@ -83,12 +106,13 @@ try {
     if ("$criteriamet"=="false"){
                 skipRemainingStages = true
                 echo "skipRemainingStages = ${skipRemainingStages}"
-                
+    /*          
                 emailext(
                 mimeType: 'text/html', 
                 to:"mohan.guntaboina@53.com, ${repo_creator_email}@53.com", 
                 subject: "Github Stage Repository: ${repo_name} not meeting naming standards", 
-                body: "<p> Hi <b>$repo_creator</b>,</br> </br>The GitHub repository <b> $repo_name</b> that you just created in github stage does not appear to follow naming standards. The repository name must start with a 'valid line of business'. </br></br> Valid lines of businesses are: <b>consumer, edo, infrastructure, commercial, payments, info-security and strategy-architecture</b>. Please rename your repo in Settings, Options or note the need for your naming exception in the readme.md file.</br></br> For more on Github standards please read the documentation at <b> https://thebank.info53.com/teams/ES/SharedApps/devops/Source%20Code%20Mgmt%20Linked%20Documents/5-3%20Github%20User%20Standards.pdf.</b> </br></br></br><b> Regards,</br>DevOps Team</b></p>")
+                body: "<p> Hi <b>$repo_creator</b>,</br> </br>The GitHub repository <b> $repo_name</b> that you just created in github stage does not appear to follow naming standards. The repository name must start with a 'valid line of business'. </br></br> Valid lines of businesses are: <b> consumer, edo, payments, commercial, infrastructure, info-security, strategy-architecture, ccas, iris, hi, devops, capital, markets</b>. Please rename your repo in Settings. </br></br> For more on Github standards please read the documentation at <b> https://thebank.info53.com/teams/ES/SharedApps/devops/Source%20Code%20Mgmt%20Linked%20Documents/5-3%20Github%20User%20Standards.pdf.</b> </br></br></br><b> Regards,</br>DevOps Team</b></p>")
+        */
         }
         
  currentBuild.result = 'SUCCESS'
@@ -131,7 +155,7 @@ def branch=jsonRepoObject.ref
 def repo_creator_email= "${repo_creator}".replace('-','.')
 echo "$repo_type .....  " 
 
-if (jsonRepoObject.ref_type == "branch" && ( jsonRepoObject.ref == "develop" || jsonRepoObject.ref == "master" )) {
+if (jsonRepoObject.ref_type == "branch" && ( jsonRepoObject.ref.toLowerCase() == "develop" || jsonRepoObject.ref.toLowerCase() == "master" || jsonRepoObject.ref.toLowerCase().contains("release") || jsonRepoObject.ref.toLowerCase() == "development"  )) {
 
 try {
         echo "Apply_Branch_Protection started executing"
@@ -149,6 +173,10 @@ try {
 
 } // end of stages
 
+} // end of pipeline
+
+
+--------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------
 pipeline {
 
